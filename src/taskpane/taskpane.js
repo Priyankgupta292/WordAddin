@@ -21,7 +21,7 @@ export async function run() {
     const paragraph = context.document.body.insertParagraph("Hello World", Word.InsertLocation.end);
 
     // change the paragraph color to blue.
-    console.log('run')
+   
     paragraph.font.color = "blue";
 
     await context.sync();
