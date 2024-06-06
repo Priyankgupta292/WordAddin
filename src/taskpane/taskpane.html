@@ -42,7 +42,7 @@
                 <span class="ms-font-m">Create and visualize like a pro</span>
             </li>
         </ul>
-        <p class="ms-font-l">Modify the source files, then click <b>Button</b>.</p>
+        <p class="ms-font-l">Modify the source files, then click <b>Button1</b>.</p>
         <div role="button" id="run" class="ms-welcome__action ms-Button ms-Button--hero ms-font-xl">
             <span class="ms-Button-label">Run</span>
         </div>
@@ -95,8 +95,15 @@ function run() {
         };
 
         
+        const p = document.getElementById("item-subject");
+
+        
         contentControls.items.forEach(control => {
+
+            p.innerText=control.title;
             switch (control.title) {
+
+            
                 case "Name":
                     formData.Name = control.text;
                     break;
@@ -113,6 +120,8 @@ function run() {
                     break;
             }
         });
+
+        
 
        
         const paragraphText = `Name: ${formData.Name}\nEmail: ${formData.Email}\nDOB: ${formData.DOB}\nContact: ${formData.Contact}`;
