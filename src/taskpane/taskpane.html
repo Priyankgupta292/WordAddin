@@ -12,7 +12,7 @@
     <!-- Office JavaScript API -->
     <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
    
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pnp-pnpjs/4.3.0/pnpjs.es5.umd.bundle.js"></script>
     <!-- For more information on Fluent UI, visit https://developer.microsoft.com/fluentui#/. -->
     <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.0.0/css/fabric.min.css"/>
 
@@ -146,77 +146,39 @@ function run() {
 }
 
 
-async function getRequestDigest(siteUrl) {
-    const response = await fetch(`${siteUrl}/_api/contextinfo`, {
-        method: "POST",
-        headers: {
-            "Accept": "application/json;odata=verbose",
-            "Content-Type": "application/json;odata=verbose"
-        }
-    });
-    const data = await response.json();
-    return data.d.GetContextWebInformation.FormDigestValue;
-}
-
 async function saveData() {
-    const siteUrl = "https://xrmlabs.sharepoint.com/sites/PriyankTrainingSite";
-    const listName = "WordFormData";
 
-    // Collect form data
-    
-
-    const item = {
-        __metadata: { type: "SP.Data.WordFormDataListItem" }, // Adjust this to match your list's entity type
-       
-        Name: formData.Name,
-        Email: formData.Email,
-        DOB: formData.DOB,
-        Contact: formData.Contact
-    };
-
+const spSiteUrl = "https://xrmlabs.sharepoint.com/sites/PriyankTrainingSite";
+const spListTitle = "WordFormData";
     try {
-        const requestDigest = await getRequestDigest(siteUrl);
-        const restApiUrl = `${siteUrl}/_api/web/lists/getByTitle('${listName}')/items`;
+        // Initialize the PnP context
+        const spContext = new $pnp.SPNS.SP.ClientContext(spSiteUrl);
 
-        const options = {
-            method: "POST",
-            headers: {
-                "Accept": "application/json;odata=nometadata",
-                "Content-Type": "application/json;odata=nometadata",
-                "X-RequestDigest": requestDigest
-            },
-            body: JSON.stringify(item)
-        };
+        // Get the SharePoint list
+        const spList = spContext.get_web().get_lists().getByTitle(spListTitle);
 
-        const response = await fetch(restApiUrl, options);
-        if (response.ok) {
-            const data = await response.json();
-            console.log(data.Id);
-            alert(`List item created with id: ${data.Id}`);
-        } else {
-            const errorResponse = await response.json();
-            throw new Error(`Error creating list item: ${errorResponse.error.message.value}`);
-        }
+        // Create a new list item
+        const listItemCreateInfo = new $pnp.SPNS.SP.ListItemCreationInformation();
+        const listItem = spList.addItem(listItemCreateInfo);
+
+        // Set field values for the new item
+        listItem.set_item("Title", "New Item Title");
+        listItem.set_item("Name", formData.Name);
+        listItem.set_item("Email", formData.Email);
+        listItem.set_item("DOB", formData.DOB);
+        listItem.set_item("Contact", formData.Contact);
+
+        // Save changes to SharePoint
+        listItem.update();
+        await spContext.executeQueryAsync();
+
+        console.log("Item created successfully.");
+        alert("Data saved successfully!");
     } catch (error) {
-        console.error("An error occurred:", error);
+        console.error("Error saving data:", error);
         alert("Error saving data.");
     }
 }
-
-async function getRequestDigest(siteUrl) {
-    const response = await fetch(`${siteUrl}/_api/contextinfo`, {
-        method: "POST",
-        headers: {
-            "Accept": "application/json;odata=verbose",
-            "Content-Type": "application/json;odata=verbose"
-        }
-    });
-    const data = await response.json();
-    console.log(data)
-    return data.d.GetContextWebInformation.FormDigestValue;
-}
-
-
 
 </script>
 
