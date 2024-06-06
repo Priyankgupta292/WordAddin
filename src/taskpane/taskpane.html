@@ -47,7 +47,7 @@
             <span class="ms-Button-label">Run</span>
         </div>
         <div>
-        <button id="save-data-button" onclick="saveData()">Save Data to SharePoint</button>
+        <button id="savedata">Save Data to SharePoint</button>
         </div>
         <p id="item-subject"></p>
     </main>
@@ -60,6 +60,7 @@
     
     document.getElementById("app-body").style.display = "flex";
     document.getElementById("run").onclick = run;
+    document.getElementById("savedata").onclick = saveData;
 
   }
 });
