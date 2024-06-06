@@ -146,11 +146,23 @@ function run() {
 }
 
 
-function saveData() {
+async function getRequestDigest(siteUrl) {
+    const response = await fetch(`${siteUrl}/_api/contextinfo`, {
+        method: "POST",
+        headers: {
+            "Accept": "application/json;odata=verbose",
+            "Content-Type": "application/json;odata=verbose"
+        }
+    });
+    const data = await response.json();
+    return data.d.GetContextWebInformation.FormDigestValue;
+}
+
+async function  saveData() {
     const siteUrl = "https://xrmlabs.sharepoint.com/sites/PriyankTrainingSite";
     const listName = "WordFormList";
 
-    
+    const requestDigest = await getRequestDigest(siteUrl);
     const item = {
         __metadata: { type: "SP.Data.WordFormListListItem" },
         Name: formData.Name,
@@ -164,7 +176,7 @@ function saveData() {
         headers: {
             "Accept": "application/json;odata=verbose",
             "Content-Type": "application/json;odata=verbose",
-            "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value
+            "X-RequestDigest": requestDigest
         },
         body: JSON.stringify(item)
     })
