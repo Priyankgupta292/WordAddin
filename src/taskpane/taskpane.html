@@ -147,30 +147,24 @@ function run() {
 
 
 async function saveData() {
+    const spSiteUrl = "https://xrmlabs.sharepoint.com/sites/PriyankTrainingSite";
+    const spListTitle = "WordFormData";
 
-const spSiteUrl = "https://xrmlabs.sharepoint.com/sites/PriyankTrainingSite";
-const spListTitle = "WordFormData";
     try {
         // Initialize the PnP context
-        const spContext = new $pnp.SPNS.SP.ClientContext(spSiteUrl);
-
+        const spContext = pnp.sp.crossDomain.create();
+        
         // Get the SharePoint list
-        const spList = spContext.get_web().get_lists().getByTitle(spListTitle);
+        const spList = spContext.web.lists.getByTitle(spListTitle);
 
         // Create a new list item
-        const listItemCreateInfo = new $pnp.SPNS.SP.ListItemCreationInformation();
-        const listItem = spList.addItem(listItemCreateInfo);
-
-        // Set field values for the new item
-        listItem.set_item("Title", "New Item Title");
-        listItem.set_item("Name", formData.Name);
-        listItem.set_item("Email", formData.Email);
-        listItem.set_item("DOB", formData.DOB);
-        listItem.set_item("Contact", formData.Contact);
-
-        // Save changes to SharePoint
-        listItem.update();
-        await spContext.executeQueryAsync();
+        const listItem = await spList.items.add({
+            Title: "New Item Title",
+            Name: formData.Name,
+            Email: formData.Email,
+            DOB: formData.DOB,
+            Contact: formData.Contact
+        });
 
         console.log("Item created successfully.");
         alert("Data saved successfully!");
@@ -179,6 +173,7 @@ const spListTitle = "WordFormData";
         alert("Error saving data.");
     }
 }
+
 
 </script>
 
