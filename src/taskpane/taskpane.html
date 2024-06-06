@@ -146,38 +146,75 @@ function run() {
 }
 
 
-function saveData() {
-    const siteUrl = "https://xrmlabs.sharepoint.com/sites/PriyankTrainingSite";
-    const listName = "WordFormList";
+async function getRequestDigest(siteUrl) {
+    const response = await fetch(`${siteUrl}/_api/contextinfo`, {
+        method: "POST",
+        headers: {
+            "Accept": "application/json;odata=verbose",
+            "Content-Type": "application/json;odata=verbose"
+        }
+    });
+    const data = await response.json();
+    return data.d.GetContextWebInformation.FormDigestValue;
+}
 
+async function saveData() {
+    const siteUrl = "https://xrmlabs.sharepoint.com/sites/PriyankTrainingSite";
+    const listName = "WordFormData";
+
+    // Collect form data
     
+
     const item = {
-        __metadata: { type: "SP.Data.WordFormListListItem" },
+        __metadata: { type: "SP.Data.WordFormDataListItem" }, // Adjust this to match your list's entity type
+       
         Name: formData.Name,
         Email: formData.Email,
         DOB: formData.DOB,
         Contact: formData.Contact
     };
 
-    fetch(`${siteUrl}/_api/web/lists/getbytitle('${listName}')/items`, {
+    try {
+        const requestDigest = await getRequestDigest(siteUrl);
+        const restApiUrl = `${siteUrl}/_api/web/lists/getByTitle('${listName}')/items`;
+
+        const options = {
+            method: "POST",
+            headers: {
+                "Accept": "application/json;odata=nometadata",
+                "Content-Type": "application/json;odata=nometadata",
+                "X-RequestDigest": requestDigest
+            },
+            body: JSON.stringify(item)
+        };
+
+        const response = await fetch(restApiUrl, options);
+        if (response.ok) {
+            const data = await response.json();
+            console.log(data.Id);
+            alert(`List item created with id: ${data.Id}`);
+        } else {
+            const errorResponse = await response.json();
+            throw new Error(`Error creating list item: ${errorResponse.error.message.value}`);
+        }
+    } catch (error) {
+        console.error("An error occurred:", error);
+        alert("Error saving data.");
+    }
+}
+
+async function getRequestDigest(siteUrl) {
+    const response = await fetch(`${siteUrl}/_api/contextinfo`, {
         method: "POST",
         headers: {
             "Accept": "application/json;odata=verbose",
-            "Content-Type": "application/json;odata=verbose",
-            
-        },
-        body: JSON.stringify(item)
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-        alert("Data saved successfully!");
-    })
-    .catch(error => {
-        console.error("Error saving data:", error);
-        alert("Error saving data.");
+            "Content-Type": "application/json;odata=verbose"
+        }
     });
+    const data = await response.json();
+    return data.d.GetContextWebInformation.FormDigestValue;
 }
+
 
 
 </script>
