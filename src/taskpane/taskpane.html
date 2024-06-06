@@ -212,6 +212,7 @@ async function getRequestDigest(siteUrl) {
         }
     });
     const data = await response.json();
+    console.log(data)
     return data.d.GetContextWebInformation.FormDigestValue;
 }
 
