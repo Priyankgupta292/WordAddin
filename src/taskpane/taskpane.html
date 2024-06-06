@@ -81,8 +81,8 @@ function run() {
         
         const contentControls = context.document.contentControls;
 
-        // Load the title and text properties of each content control
-        contentControls.load("items/title,items/text");
+        // Load the tag and text properties of each content control
+        contentControls.load("items/tag,items/text");
 
         await context.sync();
 
@@ -98,16 +98,19 @@ function run() {
         // Check if content controls exist
         if (contentControls.items.length === 0) {
             console.error("No content controls found in the document.");
+            if (p) {
+                p.innerText = "No content controls found in the document.";
+            }
             return;
         }
 
         contentControls.items.forEach(control => {
             // Ensure 'p' element exists
             if (p) {
-                p.innerText = `Found content control: ${control.title}`;
+                p.innerText += `Found content control with tag: ${control.tag}\n`;
             }
 
-            switch (control.title) {
+            switch (control.tag) {
                 case "Name":
                     formData.Name = control.text;
                     break;
@@ -136,6 +139,7 @@ function run() {
         console.error(error);
     });
 }
+
 
 </script>
 
