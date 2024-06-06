@@ -46,6 +46,9 @@
         <div role="button" id="run" class="ms-welcome__action ms-Button ms-Button--hero ms-font-xl">
             <span class="ms-Button-label">Run</span>
         </div>
+        <div>
+        <button id="save-data-button" onclick="saveData()">Save Data to SharePoint</button>
+        </div>
         <p id="item-subject"></p>
     </main>
 
@@ -57,6 +60,7 @@
     
     document.getElementById("app-body").style.display = "flex";
     document.getElementById("run").onclick = run;
+
   }
 });
 
@@ -74,7 +78,12 @@
 //     await context.sync();
 //   });
 // }
-
+let formData = {
+            Name: "",
+            Email: "",
+            DOB: "",
+            Contact: ""
+        };
 
 function run() {
     Word.run(async (context) => {
@@ -86,12 +95,7 @@ function run() {
 
         await context.sync();
 
-        let formData = {
-            Name: "",
-            Email: "",
-            DOB: "",
-            Contact: ""
-        };
+        
 
         const p = document.getElementById("item-subject");
 
@@ -128,7 +132,7 @@ function run() {
             }
         });
 
-        const paragraphText = `Name: ${formData.Name}\nEmail: ${formData.Email}\nDOB: ${formData.DOB}\nContact: ${formData.Contact}`;
+        const paragraphText = `Name: ${formData.Name} Email: ${formData.Email} DOB: ${formData.DOB} Contact: ${formData.Contact}`;
 
         const paragraph = context.document.body.insertParagraph(paragraphText, Word.InsertLocation.start);
 
@@ -137,6 +141,40 @@ function run() {
         await context.sync();
     }).catch(error => {
         console.error(error);
+    });
+}
+
+
+function saveData() {
+    const siteUrl = "https://xrmlabs.sharepoint.com/sites/PriyankTrainingSite";
+    const listName = "WordFormList";
+
+    
+    const item = {
+        __metadata: { type: "SP.Data.WordFormListListItem" },
+        Name: formData.Name,
+        Email: formData.Email,
+        DOB: formData.DOB,
+        Contact: formData.Contact
+    };
+
+    fetch(`${siteUrl}/_api/web/lists/getbytitle('${listName}')/items`, {
+        method: "POST",
+        headers: {
+            "Accept": "application/json;odata=verbose",
+            "Content-Type": "application/json;odata=verbose",
+            "X-RequestDigest": document.getElementById("__REQUESTDIGEST").value
+        },
+        body: JSON.stringify(item)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        alert("Data saved successfully!");
+    })
+    .catch(error => {
+        console.error("Error saving data:", error);
+        alert("Error saving data.");
     });
 }
 
