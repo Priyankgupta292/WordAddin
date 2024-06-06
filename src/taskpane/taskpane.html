@@ -42,7 +42,7 @@
                 <span class="ms-font-m">Create and visualize like a pro</span>
             </li>
         </ul>
-        <p class="ms-font-l">Modify the source files, then click <b>Button2</b>.</p>
+        <p class="ms-font-l">Modify the source files, then click <b>Button 3</b>.</p>
         <div role="button" id="run" class="ms-welcome__action ms-Button ms-Button--hero ms-font-xl">
             <span class="ms-Button-label">Run</span>
         </div>
@@ -81,12 +81,11 @@ function run() {
         
         const contentControls = context.document.contentControls;
 
-       
-        contentControls.load("items");
+        // Load the title and text properties of each content control
+        contentControls.load("items/title,items/text");
 
         await context.sync();
 
-        
         let formData = {
             Name: "",
             Email: "",
@@ -94,16 +93,21 @@ function run() {
             Contact: ""
         };
 
-        
         const p = document.getElementById("item-subject");
 
-        
+        // Check if content controls exist
+        if (contentControls.items.length === 0) {
+            console.error("No content controls found in the document.");
+            return;
+        }
+
         contentControls.items.forEach(control => {
+            // Ensure 'p' element exists
+            if (p) {
+                p.innerText = `Found content control: ${control.title}`;
+            }
 
-            p.innerText=control.title;
             switch (control.title) {
-
-            
                 case "Name":
                     formData.Name = control.text;
                     break;
@@ -121,15 +125,10 @@ function run() {
             }
         });
 
-        
-
-       
         const paragraphText = `Name: ${formData.Name}\nEmail: ${formData.Email}\nDOB: ${formData.DOB}\nContact: ${formData.Contact}`;
 
-        
         const paragraph = context.document.body.insertParagraph(paragraphText, Word.InsertLocation.start);
 
-       
         paragraph.font.color = "blue";
 
         await context.sync();
@@ -137,6 +136,7 @@ function run() {
         console.error(error);
     });
 }
+
 </script>
 
 </html>
