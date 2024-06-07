@@ -111,9 +111,9 @@
                 <input type="text" id="contact" name="contact" required>
             </div>
             <div class="form-group">
-                <button type="button" id="run">Run</button>
+                <button type="button" id="run">Fetch Data</button>
             </div>
-            <div class="form-group">
+            <div class="form-group" style="display: none;">
                 <button type="button" id="savedata">Save Data to SharePoint</button>
             </div>
         </form>
@@ -135,7 +135,19 @@
             Contact: ""
         };
 
+
+    const Name = document.getElementById("name");
+    const Email = document.getElementById("email");
+    const DOB = document.getElementById("dob");
+    const Contact = document.getElementById("contact");
+    const Run = document.getElementById("run");
+    const Savedata = document.getElementById("savedata");
+
         function run() {
+
+            Run.style.display = "none";
+            Savedata.style.display = "block";
+
             Word.run(async (context) => {
                 const contentControls = context.document.contentControls;
 
@@ -149,7 +161,7 @@
                 }
 
                 contentControls.items.forEach(control => {
-                    document.getElementById("item-subject").innerText += `Found content control with tag: ${control.tag}\n`;
+                    
                     switch (control.tag) {
                         case "Name":
                             formData.Name = control.text;
@@ -168,9 +180,14 @@
                     }
                 });
 
-                const paragraphText = `Name: ${formData.Name} Email: ${formData.Email} DOB: ${formData.DOB} Contact: ${formData.Contact}`;
-                const paragraph = context.document.body.insertParagraph(paragraphText, Word.InsertLocation.start);
-                paragraph.font.color = "blue";
+                Name.value = formData.Name;
+                Email.value = formData.Email;
+                DOB.value = formData.DOB;
+                Contact.value = formData.Contact;
+
+                // const paragraphText = `Name: ${formData.Name} Email: ${formData.Email} DOB: ${formData.DOB} Contact: ${formData.Contact}`;
+                // const paragraph = context.document.body.insertParagraph(paragraphText, Word.InsertLocation.start);
+                // paragraph.font.color = "blue";
 
                 await context.sync();
             }).catch(error => {
@@ -179,6 +196,16 @@
         }
 
         async function saveData() {
+
+            Run.style.display = "block";
+            Savedata.style.display = "none";
+            
+            Name.value = '';
+            Email.value = '';
+            DOB.value = '';
+            Contact.value = '';
+            
+
             var myHeaders = new Headers();
             myHeaders.append("Authorization", "Bearer YOUR_ACCESS_TOKEN");
             myHeaders.append("Content-Type", "application/json");
