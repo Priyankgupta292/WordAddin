@@ -231,6 +231,9 @@
                 .then(result => {
                     console.log(result);
                     document.getElementById("item-subject").innerText = 'Data saved in SharePoint List';
+                    setTimeout(() => {
+                        document.getElementById("item-subject").innerText = '';
+                    }, 5000);
                 })
                 .catch(error => console.log('error', error));
         }
