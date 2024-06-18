@@ -12,7 +12,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pnp-pnpjs/4.3.0/pnpjs.es5.umd.bundle.js"></script>
 
     <!-- Fluent UI -->
-    <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.0.0/css/fabric.min.css"/>
+    <link rel="stylesheet"
+        href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.0.0/css/fabric.min.css" />
 
     <!-- Custom styles -->
     <link href="taskpane.css" rel="stylesheet" type="text/css" />
@@ -110,10 +111,10 @@
                 <label for="contact">Contact</label>
                 <input type="text" id="contact" name="contact" readonly>
             </div>
-            <div class="form-group" >
+            <div class="form-group">
                 <button type="button" id="run" style="display: block;">Fetch Data</button>
             </div>
-            <div class="form-group" >
+            <div class="form-group">
                 <button type="button" id="savedata" style="display: none;">Save Data to SharePoint</button>
             </div>
         </form>
@@ -136,12 +137,12 @@
         };
 
 
-    const Name = document.getElementById("name");
-    const Email = document.getElementById("email");
-    const DOB = document.getElementById("dob");
-    const Contact = document.getElementById("contact");
-    const Run = document.getElementById("run");
-    const Savedata = document.getElementById("savedata");
+        const Name = document.getElementById("name");
+        const Email = document.getElementById("email");
+        const DOB = document.getElementById("dob");
+        const Contact = document.getElementById("contact");
+        const Run = document.getElementById("run");
+        const Savedata = document.getElementById("savedata");
 
         function run() {
 
@@ -161,7 +162,7 @@
                 }
 
                 contentControls.items.forEach(control => {
-                    
+
                     switch (control.tag) {
                         case "Name":
                             formData.Name = control.text;
@@ -195,19 +196,65 @@
             });
         }
 
+        async function getAccessToken() {
+
+
+
+
+
+
+            const tenantId = "3c90a2ff-691c-483a-8e94-fbca1b7d4edf";
+            const clientId = "e396fcaa-6806-4753-9fca-b69e3e38fe1b";
+            const clientSecret = "AkO8Q~osLVOOE6vn15OMn2RJzjRddnYd5Csaja6s";
+            const scope = "https://graph.microsoft.com/.default";
+
+            const tokenUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`;
+
+            const params = new URLSearchParams();
+            params.append("client_id", clientId);
+            params.append("scope", scope);
+            params.append("client_secret", clientSecret);
+            params.append("grant_type", "client_credentials");
+
+            const requestOptions = {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: params
+            };
+
+            try {
+                const response = await fetch(tokenUrl, requestOptions);
+                const data = await response.json();
+                return data.access_token;
+            } catch (error) {
+                console.error("Error getting access token: ", error);
+            }
+        }
+
+
         async function saveData() {
+
+
 
             Run.style.display = "block";
             Savedata.style.display = "none";
-            
+
+            const accessToken = await getAccessToken();
+            if (!accessToken) {
+                console.error("Failed to get access token");
+                return;
+            }
+
             Name.value = '';
             Email.value = '';
             DOB.value = '';
             Contact.value = '';
-            
+
 
             var myHeaders = new Headers();
-            myHeaders.append("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJub25jZSI6Ilh0VmRISEJVS3VvbS1lemZoNEZsOC1VR0NnMTNsVFJHQ0dZVE1GY1Iyc0UiLCJhbGciOiJSUzI1NiIsIng1dCI6IkwxS2ZLRklfam5YYndXYzIyeFp4dzFzVUhIMCIsImtpZCI6IkwxS2ZLRklfam5YYndXYzIyeFp4dzFzVUhIMCJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTAwMDAtYzAwMC0wMDAwMDAwMDAwMDAiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC8zYzkwYTJmZi02OTFjLTQ4M2EtOGU5NC1mYmNhMWI3ZDRlZGYvIiwiaWF0IjoxNzE3NjYzNzA3LCJuYmYiOjE3MTc2NjM3MDcsImV4cCI6MTcxNzc1MDQwNywiYWNjdCI6MCwiYWNyIjoiMSIsImFpbyI6IkFUUUF5LzhXQUFBQTBPN0szeTN6Rmt6ZitCM3pVck5JUXJsbFVkT3QrQVBEcGc0NFBrNFc5RHhWNlRGZ0pXME00QmNFT0RncEZpaXYiLCJhbXIiOlsicHdkIl0sImFwcF9kaXNwbGF5bmFtZSI6IkdyYXBoIEV4cGxvcmVyIiwiYXBwaWQiOiJkZThiYzhiNS1kOWY5LTQ4YjEtYThhZC1iNzQ4ZGE3MjUwNjQiLCJhcHBpZGFjciI6IjAiLCJmYW1pbHlfbmFtZSI6Ikd1cHRhIiwiZ2l2ZW5fbmFtZSI6IlByaXlhbmsiLCJpZHR5cCI6InVzZXIiLCJpcGFkZHIiOiI0OS40My4xNjAuMjI1IiwibmFtZSI6IlByaXlhbmsgR3VwdGEiLCJvaWQiOiJjNWMwZWQ3NC04OGUxLTRhZTMtOTM0MS0wNTUwMmFiYmY1YWUiLCJwbGF0ZiI6IjMiLCJwdWlkIjoiMTAwMzIwMDM2QUI0RDlBMiIsInJoIjoiMC5BVlFBXzZLUVBCeHBPa2lPbFB2S0czMU8zd01BQUFBQUFBQUF3QUFBQUFBQUFBQ2lBTGcuIiwic2NwIjoiTWFpbC5SZWFkQmFzaWMgTWFpbC5TZW5kIG9wZW5pZCBwcm9maWxlIFNpdGVzLlJlYWRXcml0ZS5BbGwgVXNlci5SZWFkIGVtYWlsIiwic2lnbmluX3N0YXRlIjpbImttc2kiXSwic3ViIjoid1lDalpGUDhkc21zaFluVTZRVXVwM01Xemo5U1p1WWgzMktXMlBGbDBRUSIsInRlbmFudF9yZWdpb25fc2NvcGUiOiJBUyIsInRpZCI6IjNjOTBhMmZmLTY5MWMtNDgzYS04ZTk0LWZiY2ExYjdkNGVkZiIsInVuaXF1ZV9uYW1lIjoicHJpeWFua2dAeHJtbGFicy5jb20iLCJ1cG4iOiJwcml5YW5rZ0B4cm1sYWJzLmNvbSIsInV0aSI6InJ1VURpczFCZWt5dUdpVzlDeFZZQUEiLCJ2ZXIiOiIxLjAiLCJ3aWRzIjpbImI3OWZiZjRkLTNlZjktNDY4OS04MTQzLTc2YjE5NGU4NTUwOSJdLCJ4bXNfY2MiOlsiQ1AxIl0sInhtc19zc20iOiIxIiwieG1zX3N0Ijp7InN1YiI6IjdhYWl2SjVfcWluXzl1WkVNSkVTQjE5S29RVzkxLWd5YWo0UDBnVDFJaGcifSwieG1zX3RjZHQiOjE1MDA1NjkwMDZ9.GCvIUfIJiNLEtlsMq-AktP5cHblWwgi-J4UEyLSfRGCIoPSb94odrDJHWfenECm-QcBCtKV9flXi1iDq8Fo6FSJnGzCH49GqkCYYO-dUGK9bmwu0gFhjSlDXhmQkQUL9z2AyBeoJMt-h7xMOqXPYDj0XviYalhkhSRthIbcm6GK7-7Jw69bbwD6w-AHymiQy2wjpGNKoLrn4JQ4j6EA3HVg-p_gFpakImeDtrFaBQxtHuael8KCvnhMHM9-C9ytem0G4CMP5nccIg7v1mIyfbhyMZfXhVu4-O_ncnj1YDr4G8-ICfgwEjv3ihW2AyAU3Cp-rujclC9STeWvFyEHGnQ");
+            myHeaders.append("Authorization", `Bearer ${accessToken}`);
             myHeaders.append("Content-Type", "application/json");
 
             var raw = JSON.stringify({
