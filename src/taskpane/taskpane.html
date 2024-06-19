@@ -10,6 +10,8 @@
     <!-- Office JavaScript API -->
     <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pnp-pnpjs/4.3.0/pnpjs.es5.umd.bundle.js"></script>
+    <script type="text/javascript" src="https://alcdn.msauth.net/browser/2.15.0/js/msal-browser.min.js"></script>
+
 
     <!-- Fluent UI -->
     <link rel="stylesheet"
@@ -196,47 +198,69 @@
             });
         }
 
+        // async function getAccessToken() {
+
+        //     const tenantId = "3c90a2ff-691c-483a-8e94-fbca1b7d4edf";
+        //     const clientId = "e396fcaa-6806-4753-9fca-b69e3e38fe1b";
+        //     const clientSecret = "AkO8Q~osLVOOE6vn15OMn2RJzjRddnYd5Csaja6s";
+        //     const scope = "https://graph.microsoft.com/.default";
+
+        //     const tokenUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`;
+
+        //     const params = new URLSearchParams();
+        //     params.append("client_id", clientId);
+        //     params.append("scope", scope);
+        //     params.append("client_secret", clientSecret);
+        //     params.append("grant_type", "client_credentials");
+
+        //     const requestOptions = {
+        //         method: 'POST',
+        //         headers: {
+        //             "Content-Type": "application/x-www-form-urlencoded"
+        //         },
+        //         body: params
+        //     };
+
+        //     try {
+        //         const response = await fetch(tokenUrl, requestOptions);
+        //         const data = await response.json();
+        //         return data.access_token;
+        //     } catch (error) {
+        //         console.error("Error getting access token: ", error);
+        //     }
+        // }
+
+        const msalConfig = {
+            auth: {
+                clientId: "396fcaa-6806-4753-9fca-b69e3e38fe1b",
+                authority: "https://login.microsoftonline.com/YOUR_TENANT_ID",
+                redirectUri: "https://priyankgupta292.github.io"
+            }
+        };
+
+        const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+        const loginRequest = {
+            scopes: ["https://graph.microsoft.com/.default"]
+        };
+
         async function getAccessToken() {
-
-
-
-
-
-
-            const tenantId = "3c90a2ff-691c-483a-8e94-fbca1b7d4edf";
-            const clientId = "e396fcaa-6806-4753-9fca-b69e3e38fe1b";
-            const clientSecret = "AkO8Q~osLVOOE6vn15OMn2RJzjRddnYd5Csaja6s";
-            const scope = "https://graph.microsoft.com/.default";
-
-            const tokenUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`;
-
-            const params = new URLSearchParams();
-            params.append("client_id", clientId);
-            params.append("scope", scope);
-            params.append("client_secret", clientSecret);
-            params.append("grant_type", "client_credentials");
-
-            const requestOptions = {
-                method: 'POST',
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: params
-            };
-
             try {
-                const response = await fetch(tokenUrl, requestOptions);
-                const data = await response.json();
-                return data.access_token;
+                const loginResponse = await msalInstance.loginPopup(loginRequest);
+                const tokenRequest = {
+                    scopes: ["https://graph.microsoft.com/.default"],
+                    account: loginResponse.account
+                };
+                const tokenResponse = await msalInstance.acquireTokenSilent(tokenRequest);
+                return tokenResponse.accessToken;
             } catch (error) {
-                console.error("Error getting access token: ", error);
+                console.error(error);
             }
         }
 
 
+
         async function saveData() {
-
-
 
             Run.style.display = "block";
             Savedata.style.display = "none";
